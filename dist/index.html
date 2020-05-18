@@ -8,16 +8,44 @@
 </head>
 <body>
     <div class="content">
+        <header>
+            <div><h1>Stay on top of your game | Simple todo app</h1></div>
+        </header>
+        <aside>
+            <div>
+                <ul>
+                    <li>Today</li>
+                    <li>Upcoming</li>
+                    <li>Project 1</li>
+                    <li>Project 2</li>
+                </ul>
+            </div>
+        </aside>
+        <main>
+            <header><h2>Upcoming</h2></header>
+            <div class = "noteContent">
+                <div class = "noteItem">
+                    <span>mark</span>
+                    <p>
+                        Coffee with Lauren
+                    </p>
+                </div>
+            </div>
+        </main>
+        
         <table>
             <tr>
                 <td class = "projectName">Project name</td>
             </tr>
-            <tr data-attr = "1">
-                <td >Project 1</td>
-                <td><button class = "btn" data-attr = "0">add</button></td>
+            <tr data-attr = "0">
+                <td >Project 1
+                    <button class = "btnDelProj" data-attr = "0">delete proj</button>
+                </td>
+                <td>
+                    <button class = "btn" data-attr = "0">add</button>
+                    
+                </td>
             </tr>
-
-
         </table>
 
     </div>
