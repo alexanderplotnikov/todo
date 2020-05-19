@@ -3,52 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
     <title>Todo</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <div class="content">
+    
+    
+    <div class="wrapper">
         <header>
-            <div><h1>Stay on top of your game | Simple todo app</h1></div>
+            <div class = "logo"><h1>Stay on top of your game | Simple todo app</h1></div>
         </header>
-        <aside>
-            <div>
-                <ul>
-                    <li>Today</li>
-                    <li>Upcoming</li>
-                    <li>Project 1</li>
-                    <li>Project 2</li>
-                </ul>
-            </div>
-        </aside>
-        <main>
-            <header><h2>Upcoming</h2></header>
-            <div class = "noteContent">
-                <div class = "noteItem">
-                    <span>mark</span>
-                    <p>
-                        Coffee with Lauren
-                    </p>
+        <div class="content">
+            <aside>
+                <div class = "projectSidebar">
+                    <ul class = "projectItems">
+                        <li>Today <span class = "noteCount">5</span></li>
+                        <li>Upcoming<span class = "noteCount">2</span></li>
+                        <li>Project 1</li>
+                        <li>Project 2</li>
+                    </ul>
+                    <div class = "addProject addItem">
+                        <i class="material-icons">add</i>
+                        <p>Add project</p>
+                    </div>
                 </div>
-            </div>
-        </main>
-        
-        <table>
-            <tr>
-                <td class = "projectName">Project name</td>
-            </tr>
-            <tr data-attr = "0">
-                <td >Project 1
-                    <button class = "btnDelProj" data-attr = "0">delete proj</button>
-                </td>
-                <td>
-                    <button class = "btn" data-attr = "0">add</button>
-                    
-                </td>
-            </tr>
-        </table>
-
+            </aside>
+            <main>
+                <div class = "noteItemHeader">
+                    <h2>Upcoming</h2>
+                </div>
+               
+                <div class = "noteContent">
+                    <div class = "noteItem">
+                        <span>mark</span>
+                        <p>
+                            Coffee with Lauren
+                        </p>
+                    </div>
+                    <div class = "noteItem">
+                        <span>mark</span>
+                        <p>
+                            Meet James @ 2:15
+                        </p>
+                    </div>
+                </div>
+                <div class = "addNote addItem">
+                    <i class="material-icons">add</i>
+                    <p>Add Task</p>
+                </div>
+            </main>
+            
+            <!-- <table>
+                <tr>
+                    <td class = "projectName">Project name</td>
+                </tr>
+                <tr data-attr = "0">
+                    <td >Project 1
+                        <button class = "btnDelProj" data-attr = "0">delete proj</button>
+                    </td>
+                    <td>
+                        <button class = "btn" data-attr = "0">add</button>
+                        
+                    </td>
+                </tr>
+            </table> -->
+    
+        </div>
     </div>
+    
     
 </body>
 <script src="main.js"></script>
