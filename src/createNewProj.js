@@ -1,7 +1,6 @@
 const createNewProj = (title, id) => ({
     title,
-    id,
-    getTitle: () => title
+    id
 });
 
 export {createNewProj}

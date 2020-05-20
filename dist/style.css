@@ -56,6 +56,8 @@ h1{
 .logo{
     padding-left: 1em;
 }
+
+
 /* Todo note list style */
 aside{
     background-color: #fafafa;
@@ -66,12 +68,10 @@ aside{
     padding-top: 3em;
     margin-left: var(--main-margin-left);
     margin-bottom: 2em;
-    font-size: 1.2em;
+    font-size: 1.4em;
     font-weight: 600;
 }
-.noteContent{
-    
-}
+
 .noteItem{
     margin-left: var(--main-margin-left);
     margin-bottom: 1em;
@@ -81,8 +81,39 @@ aside{
     border-color: var(--medium-priority-color);
     border-radius: var(--border-radius);
 }
-.noteItem > *{
-    display: inline-block;
+.noteItem{
+    display: flex;
+    align-items: center;
+}
+.noteItemIcons{
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.editNote{
+    color: grey;
+    padding-right: 0.25em;
+}
+.deleteNote{
+    color: #dc4c3f;
+}
+.completeNote{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid 2px green;
+    height: 16px;
+    width: 16px;
+    border-radius: 100%;
+    margin-right: 10px;
+    
+}
+.completeNote > i {
+    color: rgb(2, 134, 2);
+    /* display: none; */
+    font-size: 1.5em;
+    
 }
 .addNote{
     margin-left:var(--main-margin-left);
@@ -108,10 +139,14 @@ ul > li{
     margin: 2em 0;
     cursor: pointer;
 }
+.activeTab{
+    font-weight: 600;
+}
 .noteCount{
     font-size: 0.9em;
     padding-left: 0.5em;
     color: grey;
+    font-weight: 400;
 }
 .addProject{
     padding-top: 1em;
@@ -123,4 +158,7 @@ ul > li{
     cursor: pointer;
     display: flex;
     align-items: center;
+}
+.addItem:hover{
+    color: #dc4c3f;
 }
