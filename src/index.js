@@ -33,27 +33,28 @@ const createNoteModule = (function(){
         }
         else if(proj.title == 'Upcoming'){
             const distance = 72; //Hours to the past to capture Upcoming
-            let filtered = notesArr.filter(note => parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) < distance);
+            let filtered = notesArr.filter(note => 
+                parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) < distance && 
+                parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) > 0); // to exlude count for Today
             return filtered.length;
         }
         else{
             let filtered = notesArr.filter(note => note.id == proj.id);
             return filtered.length;
-        }    
+        };
     };
-    return {getNoteCount};
+    return {getNoteCount, getNotesArr};
 })();
 const projDOM = (() => {
-    const addProj = document.querySelector(".addProject");
-
     const renderProj = (() => {
         const projSidebar = document.querySelector('.projectItems');
         let projArr = createProjModule.getProjArr();
-        projArr.forEach(elem => {
+        projArr.forEach((elem, index) => {
             const count = createNoteModule.getNoteCount(elem);
-            console.log(count)
             const projItem = document.createElement('LI');
             const noteCounter = document.createElement('SPAN');
+            projItem.classList.add('projItem');
+            projItem.setAttribute("data-id", index)
             noteCounter.classList.add('noteCount');
             noteCounter.innerHTML = `${count}`
             projItem.innerHTML = elem.title;
@@ -61,13 +62,60 @@ const projDOM = (() => {
             projSidebar.appendChild(projItem);
         });
     })();
+    const addProj = document.querySelector(".addProject");
     addProj.addEventListener("click", () => {
         createProjModule.addProj("Proj1");
 
         console.log(createProjModule.getProjArr())
     });
 })();
-
+const todoDOM = (() => {
+    const noteContent = document.querySelector('.noteContent');
+    const renderTodo = () => {
+        const projLI = document.querySelectorAll('.projItem');
+        const noteHeader = document.querySelector('.noteItemHeader');
+        projLI.forEach(elem => {
+            elem.addEventListener("click", () => {
+                console.log(elem)
+                renderNote(elem.getAttribute('data-id'));
+                noteHeader.innerHTML = `${elem}`;
+            });
+        });
+        let projId = 0;
+        
+        console.log(noteContent);
+        function renderNote(projId){
+            let notesArr = createNoteModule.getNotesArr();
+            console.log(projId)
+            notesArr.forEach((elem) => {
+                if (projId === elem["id"]){
+                    const noteItem = document.createElement('DIV');
+                    noteItem.classList.add('noteItem');
+                    noteItem.innerHTML = noteHTML();
+                    noteContent.appendChild(noteItem)
+                };
+            });
+        };
+    };
+    const clearTodo = () => {
+        noteContent.innerHTML = '';
+    };
+    const noteHTML = () => {
+        return `
+            <span class = "completeNote"><i class="material-icons">check_circle</i></span>
+            <p class = "noteText">
+                New Note from JS
+            </p>
+            <div class = "noteItemIcons">
+                <i class="editNote material-icons">edit</i>
+                <i class="deleteNote material-icons">delete_forever</i>  
+            </div>`
+    }
+        
+    
+    renderTodo();
+    return {renderTodo};
+})();
 // delProj.setAttribute("data-attr", 0);
 // delProj.addEventListener('click', (e) => {
 //     const projAttr = e.target.getAttribute("data-attr");
