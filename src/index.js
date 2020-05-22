@@ -5,14 +5,14 @@ import {lightFormat} from 'date-fns'
 
 'use strict';
 // TESTING
-let obj = createNewNote("swe", "project 1 due tmrw", "2020-05-21", "high", "2", 2);
+let obj = createNewNote("swe", "project 1 due tmrw", "2020-05-22", "high", "2", 2);
 let obj2 = createNewNote("design", "project 1 due tmrw", "2020-05-23", "high", "2", 3);
-let obj3 = createNewNote("hw", "project 1 due tmrw", "2020-06-30", "high", "2", 4);
+let obj3 = createNewNote("hw", "project 1 due tmrw", "2020-05-25", "high", "2", 4);
 let obj4 = createNewNote("scuba", "project 1 due tmrw", "2020-05-23", "high", "2", 5);
 
 
 const createProjModule = (function(){
-    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }, {title: 'Proj1', id: 2 }];
+    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }];
     let projId = 2;
     let noteCount;
     const getProjArr = () => {return projArr};
@@ -25,29 +25,37 @@ const createProjModule = (function(){
 const createNoteModule = (function(){
     let notesArr = [obj, obj2, obj3, obj4];
     const getNotesArr = () => {return notesArr};
-    const getNoteCount = (proj) => {
+    const getUpcomingNotes = () => {
+        const distance = 72; //Hours to the past to capture Upcoming
+        let filtered = notesArr.filter(note => 
+            parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) < distance && 
+            parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) > 0); // to exlude count for Today
+        return filtered;
+    };
+    const getTodayNotes = () => {
         let today = lightFormat(Date.now(), 'yyyy-MM-dd');
+        let filtered = notesArr.filter(note => note.dueDate == today)
+        return filtered;
+    };
+    const getProjIdNotes = (projId) => {
+        let filtered = notesArr.filter(note => note.id == projId)
+        return filtered;
+    };
+    const getNoteCount = (proj) => {
         if(proj.title == 'Today'){ //Today
-            let filtered = notesArr.filter(note => note.dueDate == today)
-            return filtered.length;
-        }
-        else if(proj.title == 'Upcoming'){
-            const distance = 72; //Hours to the past to capture Upcoming
-            let filtered = notesArr.filter(note => 
-                parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) < distance && 
-                parseInt((new Date(note.dueDate) - Date.now()) / 1000 / 60 / 60) > 0); // to exlude count for Today
-            return filtered.length;
-        }
-        else{
+            return getTodayNotes().length;
+        }else if(proj.title == 'Upcoming'){
+            return getUpcomingNotes().length;
+        }else{
             let filtered = notesArr.filter(note => note.id == proj.id);
             return filtered.length;
         };
     };
-    return {getNoteCount, getNotesArr};
+    return {getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes};
 })();
 const projDOM = (() => {
-    const renderProj = (() => {
-        const projSidebar = document.querySelector('.projectItems');
+    const projSidebar = document.querySelector('.projectItems');
+    const renderProj = () => {
         let projArr = createProjModule.getProjArr();
         projArr.forEach((elem, index) => {
             const count = createNoteModule.getNoteCount(elem);
@@ -61,50 +69,76 @@ const projDOM = (() => {
             projItem.appendChild(noteCounter);
             projSidebar.appendChild(projItem);
         });
-    })();
+        
+    };
+    const clearProj = () => {
+        projSidebar.innerHTML = '';
+    };
     const addProj = document.querySelector(".addProject");
     addProj.addEventListener("click", () => {
         createProjModule.addProj("Proj1");
-
-        console.log(createProjModule.getProjArr())
+        clearProj();
+        renderProj();
+        todoDOM.renderTodo()
+        //todoDOM.renderNote();
+     
+        
     });
+    const renderOnload = (() => {
+        renderProj()
+    })();
 })();
+
 const todoDOM = (() => {
     const noteContent = document.querySelector('.noteContent');
     const renderTodo = () => {
+        
         const projLI = document.querySelectorAll('.projItem');
         const noteHeader = document.querySelector('.noteItemHeader');
         projLI.forEach(elem => {
             elem.addEventListener("click", () => {
                 console.log(elem)
+                clearTodo();
                 renderNote(elem.getAttribute('data-id'));
-                noteHeader.innerHTML = `${elem}`;
+                noteHeader.innerHTML = `${elem.innerHTML}`;
             });
         });
         let projId = 0;
         
         console.log(noteContent);
-        function renderNote(projId){
-            let notesArr = createNoteModule.getNotesArr();
-            console.log(projId)
-            notesArr.forEach((elem) => {
-                if (projId === elem["id"]){
-                    const noteItem = document.createElement('DIV');
-                    noteItem.classList.add('noteItem');
-                    noteItem.innerHTML = noteHTML();
-                    noteContent.appendChild(noteItem)
-                };
-            });
-        };
+        
+    };
+    function renderNote(projId){
+        let notesArr;
+        if(projId == 0){
+            notesArr = createNoteModule.getTodayNotes();
+            console.log(notesArr)
+        }
+        else if(projId == 1){
+            notesArr = createNoteModule.getUpcomingNotes();
+            console.log(notesArr)
+        }
+        else{
+            notesArr = createNoteModule.getProjIdNotes(projId)
+        }
+        notesArr.forEach((elem) => {
+            const noteItem = document.createElement('DIV');
+            noteItem.classList.add('noteItem');
+            noteItem.innerHTML = noteHTML(elem); 
+            noteContent.appendChild(noteItem)
+        });
     };
     const clearTodo = () => {
         noteContent.innerHTML = '';
     };
-    const noteHTML = () => {
+    const noteHTML = (elem) => {
+        const title = elem.title;
+        const desc = elem.description;
+        const dueDate = elem.dueDate;
         return `
             <span class = "completeNote"><i class="material-icons">check_circle</i></span>
             <p class = "noteText">
-                New Note from JS
+                ${title}
             </p>
             <div class = "noteItemIcons">
                 <i class="editNote material-icons">edit</i>
@@ -114,7 +148,7 @@ const todoDOM = (() => {
         
     
     renderTodo();
-    return {renderTodo};
+    return {renderTodo, renderNote};
 })();
 // delProj.setAttribute("data-attr", 0);
 // delProj.addEventListener('click', (e) => {
