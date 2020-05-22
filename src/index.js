@@ -79,44 +79,40 @@ const projDOM = (() => {
         createProjModule.addProj("Proj1");
         clearProj();
         renderProj();
-        todoDOM.renderTodo()
-        //todoDOM.renderNote();
-     
-        
+        todoDOM.renderTodo()        
     });
     const renderOnload = (() => {
         renderProj()
+     
     })();
 })();
 
 const todoDOM = (() => {
     const noteContent = document.querySelector('.noteContent');
+    const noteHeader = document.querySelector('.noteItemHeader');
+    const renderNoteHeader = (projId) =>{
+        let projArr = createProjModule.getProjArr();
+        let projTitle = projArr[projId];
+        clearTodo();
+        renderTodo();
+        renderNote(projId);
+        noteHeader.innerHTML = `${projTitle.title}`;
+    };
     const renderTodo = () => {
-        
         const projLI = document.querySelectorAll('.projItem');
-        const noteHeader = document.querySelector('.noteItemHeader');
         projLI.forEach(elem => {
             elem.addEventListener("click", () => {
-                console.log(elem)
-                clearTodo();
-                renderNote(elem.getAttribute('data-id'));
-                noteHeader.innerHTML = `${elem.innerHTML}`;
+                renderNoteHeader(elem.getAttribute('data-id'));
             });
         });
-        let projId = 0;
-        
-        console.log(noteContent);
-        
     };
     function renderNote(projId){
         let notesArr;
         if(projId == 0){
             notesArr = createNoteModule.getTodayNotes();
-            console.log(notesArr)
         }
         else if(projId == 1){
             notesArr = createNoteModule.getUpcomingNotes();
-            console.log(notesArr)
         }
         else{
             notesArr = createNoteModule.getProjIdNotes(projId)
@@ -126,8 +122,19 @@ const todoDOM = (() => {
             noteItem.classList.add('noteItem');
             noteItem.innerHTML = noteHTML(elem); 
             noteContent.appendChild(noteItem)
+
         });
     };
+    function noteInputPromt(){
+        
+    }
+    const addNote = (() => {
+        const addNoteBtn = document.querySelector('.addNote');
+        addNoteBtn.addEventListener("click", (e) => {
+            noteInputPromt();
+            
+        });
+    })();
     const clearTodo = () => {
         noteContent.innerHTML = '';
     };
@@ -135,19 +142,20 @@ const todoDOM = (() => {
         const title = elem.title;
         const desc = elem.description;
         const dueDate = elem.dueDate;
+        const noteId = elem.noteId;
+     
         return `
             <span class = "completeNote"><i class="material-icons">check_circle</i></span>
             <p class = "noteText">
                 ${title}
             </p>
             <div class = "noteItemIcons">
-                <i class="editNote material-icons">edit</i>
-                <i class="deleteNote material-icons">delete_forever</i>  
+                <i note-id = ${noteId} class="editNote material-icons">edit</i>
+                <i note-id = ${noteId} class="deleteNote material-icons">delete_forever</i>  
             </div>`
     }
-        
-    
-    renderTodo();
+
+    renderNoteHeader(0);
     return {renderTodo, renderNote};
 })();
 // delProj.setAttribute("data-attr", 0);
@@ -172,27 +180,15 @@ const todoDOM = (() => {
 //         };
 //     });
 // };
-// submit.addEventListener("click", (e) => {
-    
-//     (function renderPage(){
-//         notesArr.forEach((elem) => {
-//             if (projAttr === elem["id"]){
-//                 //construct html
-//                 btn.setAttribute(`data-attr`, elem["noteId"])
-//                 btn.addEventListener('click', (e) => {
-//                     let btnId = e.target.getAttribute("data-attr");
-//                     deleteNote(btnId, domElem);
-//                 });                
-//             };
-//         });
-//     })();
-    
-// });
-
-// const renderTodo = (elem) => {
-//     const title = elem.title;
-//     const desc = elem.description;
-//     const dueDate = elem.dueDate;
-//     const priority = elem.priority;
-//     return ``
-// }
+const deleteNoteModule = (() => {
+    const deleteNote = (btnId) => {
+        notesArr.forEach((elem) => {
+            if (btnId == elem["noteId"]){
+                let index = notesArr.indexOf(elem);
+                notesArr.splice(index, 1);
+                domElem.remove();
+            };
+        });
+    };
+    return {deleteNote}
+})();
