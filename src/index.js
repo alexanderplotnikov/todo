@@ -77,16 +77,27 @@ const projDOM = (() => {
     };
     const addProj = document.querySelector(".addProject");
     let alreadyClicked = false;
-    addProj.addEventListener("click", (e) => {
+    addProj.addEventListener("click", (e) => { 
+        let projInput = document.querySelector('.addProjInput');
+        let addProjWrapper = document.querySelector('.addProjWrapper');
+        //if clicked outside input field then hide it
+        document.addEventListener('mouseup', function(e) {
+            if (!addProjWrapper.contains(e.target)) {
+                addProjPromt.classList.add('hide');
+                projInput.value = '';
+            }
+        });
         e.preventDefault();
         let addProjPromt = document.querySelector('.addProjPromt');
-        if(alreadyClicked){
-            let lastProj = createProjModule.addProj("Proj1");
+        if(alreadyClicked && projInput.value !== ''){
+            let lastProj = createProjModule.addProj(projInput.value);
             clearProj();
             renderProj();
             todoDOM.renderNoteHeader(lastProj.id);
-            addProjPromt.classList.add('hide');
-            alreadyClicked = false;
+            addProjPromt.classList.add('hide'); 
+            projInput.value = '';
+        } else if (alreadyClicked && projInput.value === ''){
+            addProjPromt.classList.toggle('hide');
         } else {
             addProjPromt.classList.remove('hide');
             alreadyClicked = true;
@@ -164,7 +175,7 @@ const todoDOM = (() => {
                 <i note-id = ${noteId} class="deleteNote material-icons">delete_forever</i>  
             </div>`
     }
-
+    
     renderNoteHeader(0);
     return {addRenderNoteListener, renderNote, renderNoteHeader};
 })();

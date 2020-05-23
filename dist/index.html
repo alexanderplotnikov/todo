@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
     <title>Todo</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js" ></script>
+
+    
+
+    
 </head>
 <body>
     
@@ -21,13 +30,16 @@
                     <ul class = "projectItems">
                         <!-- Automated in index.js -->
                     </ul>
-                    <div class = "addProject addItem">
-                        <i class="material-icons">add</i>
-                        <p>Add project</p>
+                    <div class="addProjWrapper">
+                        <div class = "addProject addItem">
+                            <i class="material-icons">add</i>
+                            <p>Add project</p>
+                        </div>
+                        <div class = "addProjPromt hide">
+                            <input class = "addProjInput" type = "text">                        
+                        </div>
                     </div>
-                    <div class = "addProjPromt hide">
-                        <input>
-                    </div>
+                    
                 </div>
             </aside>
             <main>
@@ -42,11 +54,49 @@
                     <i class="material-icons">add</i>
                     <p>Add Task</p>
                 </div>
-            </main>    
+            </main>
+            <div class="addNotePrompt">
+                <form class = "addNoteForm ">
+                    <div class="row">
+                        <div class="input-field">
+                          <input name="titleNote" id="titleNote" type="text" class="validate">
+                          <label for="email">Title</label>
+                        </div>
+                      </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <input type=text name="dueDate" id="dueDate" class="datepicker" required>
+                            <label for="bdate">Due Date</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <input name="descNote" id="descNote" type="text" class="validate">
+                            <label for="descNote">Comment</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field browser-default">
+                            <select class="browser-default" >
+                                <option value="" disabled selected>Priority</option>
+                                <option value="1">Low</option>
+                                <option value="2">Medium</option>
+                                <option value="3">High</option>
+                            </select>
+                            
+                          </div>
+                    </div>
+                </form>
+            </div>  
         </div>
     </div>
-    
-    
+
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let elems = document.querySelectorAll('.datepicker');
+        let instances = M.Datepicker.init(elems, autoClose = true);
+    });
+</script>
 <script src="main.js"></script>
 </html>

@@ -168,9 +168,31 @@ ul > li{
 
 
 /* current dev */
-.addProjPromt{
-    
+.addProjInput{
+    width: 80%;
 }
 .hide{
     display: none;
 }
+
+.addNotePrompt{
+    background-color: rgb(255, 255, 255);
+    height: 300px;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    margin-left: calc(-50% / 2);
+    top: 50%;
+    margin-top: -50px;
+}
+.addNoteForm{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+#titleNote{
+    grid-row: 2/ 3;
+}
+#descNote{
+    grid-row: 1/2;
+}
+
