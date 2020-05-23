@@ -18,6 +18,7 @@ const createProjModule = (function(){
     const getProjArr = () => {return projArr};
     const addProj = (title) => {
         projArr.push(createNewProj(title, projId++))
+        return projArr.slice(-1)[0] 
     };
     return {addProj, getProjArr};
 }());
@@ -75,15 +76,24 @@ const projDOM = (() => {
         projSidebar.innerHTML = '';
     };
     const addProj = document.querySelector(".addProject");
-    addProj.addEventListener("click", () => {
-        createProjModule.addProj("Proj1");
-        clearProj();
-        renderProj();
-        todoDOM.renderTodo()        
+    let alreadyClicked = false;
+    addProj.addEventListener("click", (e) => {
+        e.preventDefault();
+        let addProjPromt = document.querySelector('.addProjPromt');
+        if(alreadyClicked){
+            let lastProj = createProjModule.addProj("Proj1");
+            clearProj();
+            renderProj();
+            todoDOM.renderNoteHeader(lastProj.id);
+            addProjPromt.classList.add('hide');
+            alreadyClicked = false;
+        } else {
+            addProjPromt.classList.remove('hide');
+            alreadyClicked = true;
+        };
     });
     const renderOnload = (() => {
         renderProj()
-     
     })();
 })();
 
@@ -94,11 +104,11 @@ const todoDOM = (() => {
         let projArr = createProjModule.getProjArr();
         let projTitle = projArr[projId];
         clearTodo();
-        renderTodo();
+        addRenderNoteListener();
         renderNote(projId);
         noteHeader.innerHTML = `${projTitle.title}`;
     };
-    const renderTodo = () => {
+    const addRenderNoteListener = () => {
         const projLI = document.querySelectorAll('.projItem');
         projLI.forEach(elem => {
             elem.addEventListener("click", () => {
@@ -156,7 +166,7 @@ const todoDOM = (() => {
     }
 
     renderNoteHeader(0);
-    return {renderTodo, renderNote};
+    return {addRenderNoteListener, renderNote, renderNoteHeader};
 })();
 // delProj.setAttribute("data-attr", 0);
 // delProj.addEventListener('click', (e) => {
