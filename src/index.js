@@ -14,7 +14,7 @@ let obj4 = createNewNote("scuba", "project 1 due tmrw", "2020-05-23", "high", "2
 const createProjModule = (function(){
     let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }];
     let projId = 2;
-    let noteCount;
+    
     const getProjArr = () => {return projArr};
     const addProj = (title) => {
         projArr.push(createNewProj(title, projId++))
@@ -25,6 +25,7 @@ const createProjModule = (function(){
 
 const createNoteModule = (function(){
     let notesArr = [obj, obj2, obj3, obj4];
+    let noteId = 6;
     const getNotesArr = () => {return notesArr};
     const getUpcomingNotes = () => {
         const distance = 72; //Hours to the past to capture Upcoming
@@ -52,7 +53,18 @@ const createNoteModule = (function(){
             return filtered.length;
         };
     };
-    return {getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes};
+    const addNoteToArr = (title, desc, dueDate, priority, projId) => {
+        notesArr.push(createNewNote(title, desc, dueDate, priority, projId, noteId++));
+    }
+    const deleteNote = (btnId) => {
+        notesArr.forEach((elem) => {
+            if (btnId == elem["noteId"]){
+                let index = notesArr.indexOf(elem);
+                notesArr.splice(index, 1);
+            };
+        });
+    };
+    return {deleteNote, getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes, addNoteToArr};
 })();
 const projDOM = (() => {
     const projSidebar = document.querySelector('.projectItems');
@@ -138,22 +150,39 @@ const todoDOM = (() => {
         else{
             notesArr = createNoteModule.getProjIdNotes(projId)
         }
+        
         notesArr.forEach((elem) => {
             const noteItem = document.createElement('DIV');
             noteItem.classList.add('noteItem');
             noteItem.innerHTML = noteHTML(elem); 
             noteContent.appendChild(noteItem)
-
+            const deleteNoteBtn = document.querySelector('.deleteNote');
+            
+            deleteNoteBtn.addEventListener("click", (e) => {
+                createNoteModule.deleteNote(e.target.getAttribute('note-id'));
+                renderNoteHeader(projId);
+            });
+            
+   
         });
     };
-    function noteInputPromt(){
-        
-    }
+    
     const addNote = (() => {
+        const addNotePrompt = document.querySelector('.addNotePrompt');
         const addNoteBtn = document.querySelector('.addNote');
-        addNoteBtn.addEventListener("click", (e) => {
+        const addTaskBtn = document.querySelector('.addTaskBtn');
+        function noteInputPromt(){
+            addNotePrompt.classList.toggle('hide');
+        }
+        addNoteBtn.addEventListener("click", () => {noteInputPromt();});
+        addTaskBtn.addEventListener("click", () => {
             noteInputPromt();
-            
+            const title = document.querySelector('#titleNote').value;
+            const desc = document.querySelector('#descNote').value;
+            const dueDate = document.querySelector('#dueDate').value;
+            const priority = document.querySelector('#priority').value;
+            const projId = document.querySelector('#projId').value;
+            createNoteModule.addNoteToArr(title, desc, dueDate, priority, projId);
         });
     })();
     const clearTodo = () => {
@@ -203,13 +232,13 @@ const todoDOM = (() => {
 // };
 const deleteNoteModule = (() => {
     const deleteNote = (btnId) => {
-        notesArr.forEach((elem) => {
+        createNoteModule.notesArr.forEach((elem) => {
             if (btnId == elem["noteId"]){
                 let index = notesArr.indexOf(elem);
-                notesArr.splice(index, 1);
+                createNoteModule.notesArr.splice(index, 1);
                 domElem.remove();
             };
         });
-    };
+    };    
     return {deleteNote}
 })();

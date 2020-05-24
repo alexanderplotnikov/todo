@@ -55,37 +55,46 @@
                     <p>Add Task</p>
                 </div>
             </main>
-            <div class="addNotePrompt">
+            <div class="addNotePrompt hide">
                 <form class = "addNoteForm ">
                     <div class="row">
                         <div class="input-field">
-                          <input name="titleNote" id="titleNote" type="text" class="validate">
-                          <label for="email">Title</label>
+                          <input name="titleNote" id="titleNote" type="text">
+                          <label for="titleNote">Title</label>
                         </div>
                       </div>
                     <div class="row">
                         <div class="input-field">
-                            <input type=text name="dueDate" id="dueDate" class="datepicker" required>
+                            <input type=text name="dueDate" id="dueDate" class="datepicker" >
                             <label for="bdate">Due Date</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field">
-                            <input name="descNote" id="descNote" type="text" class="validate">
+                            <input name="descNote" id="descNote" type="text" >
                             <label for="descNote">Comment</label>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="addProjDrop row">
                         <div class="input-field browser-default">
-                            <select class="browser-default" >
+                            <select class="browser-default" id="priority">
                                 <option value="" disabled selected>Priority</option>
-                                <option value="1">Low</option>
-                                <option value="2">Medium</option>
-                                <option value="3">High</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
                             </select>
                             
                           </div>
+                          <div class="input-field browser-default">
+                            <select class="browser-default projSelectDrop" id="projId">
+                                <option value="" disabled selected>Project</option>
+                                <option value="3">3</option>
+                                <!-- Autopopulated in JS -->
+                            </select>
+                          </div>
+                          
                     </div>
+                    <a class="waves-effect waves-light btn addTaskBtn">Add Task</a>
                 </form>
             </div>  
         </div>
