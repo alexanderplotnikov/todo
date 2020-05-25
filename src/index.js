@@ -1,14 +1,14 @@
 import {createNewNote} from "./createNewNote.js" 
 import {createNewProj} from "./createNewProj.js"
 
-import {lightFormat} from 'date-fns'
+import {format} from 'date-fns'
 
 'use strict';
 // TESTING
-let obj = createNewNote("swe", "project 1 due tmrw", "2020-05-22", "high", "2", 2);
-let obj2 = createNewNote("design", "project 1 due tmrw", "2020-05-23", "high", "2", 3);
-let obj3 = createNewNote("hw", "project 1 due tmrw", "2020-05-25", "high", "2", 4);
-let obj4 = createNewNote("scuba", "project 1 due tmrw", "2020-05-23", "high", "2", 5);
+let obj = createNewNote("swe", "project 1 due tmrw", "May 25, 2020", "high", "2", 2);
+let obj2 = createNewNote("design", "project 1 due tmrw", "May 26, 2020", "high", "2", 3);
+let obj3 = createNewNote("hw", "project 1 due tmrw", "May 30, 2020", "high", "2", 4);
+let obj4 = createNewNote("scuba", "project 1 due tmrw", "May 22, 2020", "high", "2", 5);
 
 
 const createProjModule = (function(){
@@ -35,7 +35,7 @@ const createNoteModule = (function(){
         return filtered;
     };
     const getTodayNotes = () => {
-        let today = lightFormat(Date.now(), 'yyyy-MM-dd');
+        let today = format(Date.now(), 'LLL dd, yyyy');
         let filtered = notesArr.filter(note => note.dueDate == today)
         return filtered;
     };
@@ -118,6 +118,12 @@ const projDOM = (() => {
     const renderOnload = (() => {
         renderProj()
     })();
+    const updateProjDOM = () => {
+        clearProj();
+        renderProj();
+        todoDOM.addRenderNoteListener();
+    };
+    return {updateProjDOM}
 })();
 
 const todoDOM = (() => {
@@ -149,41 +155,60 @@ const todoDOM = (() => {
         }
         else{
             notesArr = createNoteModule.getProjIdNotes(projId)
-        }
-        
+        };
         notesArr.forEach((elem) => {
             const noteItem = document.createElement('DIV');
             noteItem.classList.add('noteItem');
             noteItem.innerHTML = noteHTML(elem); 
-            noteContent.appendChild(noteItem)
-            const deleteNoteBtn = document.querySelector('.deleteNote');
-            
-            deleteNoteBtn.addEventListener("click", (e) => {
+            noteContent.appendChild(noteItem) 
+        });
+        let deleteNoteBtn = document.querySelectorAll('.deleteNote');
+        deleteNoteBtn.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
                 createNoteModule.deleteNote(e.target.getAttribute('note-id'));
                 renderNoteHeader(projId);
+                projDOM.updateProjDOM();
             });
-            
-   
-        });
+        }); 
+        let editNoteBtn = document.querySelectorAll('.editNote');
+        
+        editNoteBtn.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                console.log(e.target);
+                addNote.noteInputPromt();
+                renderNoteHeader(projId);
+                projDOM.updateProjDOM();
+            });
+        }); 
     };
     
     const addNote = (() => {
+        const cancelNoteBtn = document.querySelector('.cancelTaskBtn');
         const addNotePrompt = document.querySelector('.addNotePrompt');
         const addNoteBtn = document.querySelector('.addNote');
         const addTaskBtn = document.querySelector('.addTaskBtn');
         function noteInputPromt(){
             addNotePrompt.classList.toggle('hide');
+        };
+        function clearNoteInput(title, desc, dueDate, priority, projId) {
+            console.log(title)
+            return title = '';
+
         }
+        cancelNoteBtn.addEventListener("click", () => {noteInputPromt();})
         addNoteBtn.addEventListener("click", () => {noteInputPromt();});
         addTaskBtn.addEventListener("click", () => {
             noteInputPromt();
-            const title = document.querySelector('#titleNote').value;
+            let title = document.querySelector('#titleNote');
             const desc = document.querySelector('#descNote').value;
-            const dueDate = document.querySelector('#dueDate').value;
+            const dueDate = document.querySelector('#dueDate');
             const priority = document.querySelector('#priority').value;
             const projId = document.querySelector('#projId').value;
-            createNoteModule.addNoteToArr(title, desc, dueDate, priority, projId);
+            createNoteModule.addNoteToArr(title.value, desc, dueDate.value, priority, projId);
+            renderNoteHeader(projId);
+            projDOM.updateProjDOM();
         });
+        return {noteInputPromt}
     })();
     const clearTodo = () => {
         noteContent.innerHTML = '';
@@ -219,26 +244,5 @@ const todoDOM = (() => {
 //         if (projAttr === item["id"]){
 //             notesArr.splice(idx, 1);
 //         };
-//     }; 
+//     };
 // };
-// function deleteNote(btnId, domElem){
-//     notesArr.forEach((elem) => {
-//         if (btnId == elem["noteId"]){
-//             let index = notesArr.indexOf(elem);
-//             notesArr.splice(index, 1);
-//             domElem.remove();
-//         };
-//     });
-// };
-const deleteNoteModule = (() => {
-    const deleteNote = (btnId) => {
-        createNoteModule.notesArr.forEach((elem) => {
-            if (btnId == elem["noteId"]){
-                let index = notesArr.indexOf(elem);
-                createNoteModule.notesArr.splice(index, 1);
-                domElem.remove();
-            };
-        });
-    };    
-    return {deleteNote}
-})();

@@ -210,8 +210,22 @@ ul > li{
     display: flex;
     justify-content: space-around;
 }
-.addTaskBtn{
+.addTaskButtons{
+    display: grid;
     grid-column: 1 / 3;
-    width: 25%;
-    justify-self: center;
+    
+    justify-content: space-evenly;
+}
+.addTaskBtn{
+    grid-column: 1/2;
+}
+.cancelTaskBtn{
+    grid-column: 2/3;
+    background-color: #dc4c3f;
+}
+.cancelTaskBtn:hover{
+    background-color: #e26a5f;;
+}
+.btn{
+    width: 120px;
 }
