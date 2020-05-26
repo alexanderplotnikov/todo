@@ -53,9 +53,21 @@ const createNoteModule = (function(){
             return filtered.length;
         };
     };
+    const getExactNote = (noteId) => {
+        let filtered = notesArr.filter(note => note.noteId == noteId)
+        return filtered[0];
+    };
+    const updateNote = (noteId, title, desc, dueDate, priority, projId) => {
+        const targetObj = getExactNote(noteId);
+        targetObj.title = title;
+        targetObj.description = desc;
+        targetObj.dueDate = dueDate;
+        targetObj.priority = priority;
+        targetObj.id = projId;
+    };
     const addNoteToArr = (title, desc, dueDate, priority, projId) => {
         notesArr.push(createNewNote(title, desc, dueDate, priority, projId, noteId++));
-    }
+    };
     const deleteNote = (btnId) => {
         notesArr.forEach((elem) => {
             if (btnId == elem["noteId"]){
@@ -64,13 +76,18 @@ const createNoteModule = (function(){
             };
         });
     };
-    return {deleteNote, getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes, addNoteToArr};
+    return {updateNote, getExactNote, deleteNote, getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes, addNoteToArr};
 })();
 const projDOM = (() => {
     const projSidebar = document.querySelector('.projectItems');
     const renderProj = () => {
         let projArr = createProjModule.getProjArr();
         projArr.forEach((elem, index) => {
+            const selectProj = document.querySelector('.projSelectDrop');
+            const option = document.createElement('OPTION');
+            option.innerHTML = elem.title;
+            option.value = elem.title;
+            selectProj.appendChild(option);
             const count = createNoteModule.getNoteCount(elem);
             const projItem = document.createElement('LI');
             const noteCounter = document.createElement('SPAN');
@@ -129,6 +146,8 @@ const projDOM = (() => {
 const todoDOM = (() => {
     const noteContent = document.querySelector('.noteContent');
     const noteHeader = document.querySelector('.noteItemHeader');
+    const editTaskBtn = document.querySelector('.editTaskBtn');
+    
     const renderNoteHeader = (projId) =>{
         let projArr = createProjModule.getProjArr();
         let projTitle = projArr[projId];
@@ -171,44 +190,73 @@ const todoDOM = (() => {
             });
         }); 
         let editNoteBtn = document.querySelectorAll('.editNote');
-        
-        editNoteBtn.forEach((btn) => {
+        editNoteBtn.forEach((btn) => { // edit icon button
             btn.addEventListener("click", (e) => {
-                console.log(e.target);
-                addNote.noteInputPromt();
+                const noteId = e.target.getAttribute('note-id');
+                const note = createNoteModule.getExactNote(noteId);
+                addNote.editFormUpdate(note);
+                editTaskBtn.setAttribute("note-id", noteId);
+                console.log(note)
+                editTaskBtn.classList.remove('hide');
+                addTaskBtn.classList.add('hide');
+                addNote.noteInputPrompt();
                 renderNoteHeader(projId);
                 projDOM.updateProjDOM();
             });
-        }); 
-    };
-    
-    const addNote = (() => {
-        const cancelNoteBtn = document.querySelector('.cancelTaskBtn');
-        const addNotePrompt = document.querySelector('.addNotePrompt');
-        const addNoteBtn = document.querySelector('.addNote');
-        const addTaskBtn = document.querySelector('.addTaskBtn');
-        function noteInputPromt(){
-            addNotePrompt.classList.toggle('hide');
-        };
-        function clearNoteInput(title, desc, dueDate, priority, projId) {
-            console.log(title)
-            return title = '';
+        });
+        
 
-        }
-        cancelNoteBtn.addEventListener("click", () => {noteInputPromt();})
-        addNoteBtn.addEventListener("click", () => {noteInputPromt();});
+    };
+    const cancelNoteBtn = document.querySelector('.cancelTaskBtn');
+    const addNotePrompt = document.querySelector('.addNotePrompt');
+    const addNoteBtn = document.querySelector('.addNote');
+    const addTaskBtn = document.querySelector('.addTaskBtn');
+    const addNote = (() => {
+        function noteInputPrompt(){
+            addNotePrompt.classList.toggle('hide');
+            
+        };
+        let title = document.querySelector('#titleNote');
+        let desc = document.querySelector('#descNote');
+        let dueDate = document.querySelector('#dueDate');
+        let priority = document.querySelector('#priority');
+        let projId = document.querySelector('#projId');
+        function clearNoteInput(...args) {
+            args.forEach((elem) => {
+                elem.value = null;
+            });
+        };
+        cancelNoteBtn.addEventListener("click", () => {noteInputPrompt();})
+        addNoteBtn.addEventListener("click", () => {
+            noteInputPrompt();
+            editTaskBtn.classList.add('hide');
+            addTaskBtn.classList.remove('hide');
+            clearNoteInput(title, desc, dueDate, priority, projId);
+        });
         addTaskBtn.addEventListener("click", () => {
-            noteInputPromt();
-            let title = document.querySelector('#titleNote');
-            const desc = document.querySelector('#descNote').value;
-            const dueDate = document.querySelector('#dueDate');
-            const priority = document.querySelector('#priority').value;
-            const projId = document.querySelector('#projId').value;
-            createNoteModule.addNoteToArr(title.value, desc, dueDate.value, priority, projId);
-            renderNoteHeader(projId);
+            
+            noteInputPrompt();
+            
+            createNoteModule.addNoteToArr(title.value, desc.value, dueDate.value, priority.value, projId.value); 
+            renderNoteHeader(projId.value);
+            projDOM.updateProjDOM();
+            
+        });
+        editTaskBtn.addEventListener("click", (e) => {
+            addNote.noteInputPrompt();
+            let noteId = e.target.getAttribute('note-id');
+            createNoteModule.updateNote(noteId, title.value, desc.value, dueDate.value, priority.value, projId.value);
+            renderNoteHeader(projId.value);
             projDOM.updateProjDOM();
         });
-        return {noteInputPromt}
+        const editFormUpdate = (obj) => {
+            title.value = obj.title;
+            desc.value = obj.description;
+            dueDate.value = obj.dueDate;
+            priority.value = obj.priority;
+            projId.value = obj.id;
+        };
+        return {noteInputPrompt, editFormUpdate}
     })();
     const clearTodo = () => {
         noteContent.innerHTML = '';
