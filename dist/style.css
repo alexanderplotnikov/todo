@@ -229,3 +229,6 @@ ul > li{
 .btn{
     width: 120px;
 }
+.priorityDrop, .projSelectDrop{
+    width: 100px;
+}

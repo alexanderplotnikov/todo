@@ -9,18 +9,41 @@ let obj = createNewNote("swe", "project 1 due tmrw", "May 25, 2020", "high", "2"
 let obj2 = createNewNote("design", "project 1 due tmrw", "May 26, 2020", "high", "2", 3);
 let obj3 = createNewNote("hw", "project 1 due tmrw", "May 30, 2020", "high", "2", 4);
 let obj4 = createNewNote("scuba", "project 1 due tmrw", "May 22, 2020", "high", "2", 5);
-
+//BUG fix
+//delete proj bug
 
 const createProjModule = (function(){
-    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }];
-    let projId = 2;
+    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }, {title: '1', id: 2 }, {title: '2', id: 3 }, {title: '3', id: 4 }];
+    let projId = 5;
     
     const getProjArr = () => {return projArr};
     const addProj = (title) => {
         projArr.push(createNewProj(title, projId++))
         return projArr.slice(-1)[0] 
     };
-    return {addProj, getProjArr};
+    const deleteProj = (projId) => {
+        let notesArr = createNoteModule.getNotesArr();
+        for(let idx = notesArr.length - 1; 0 <= idx; idx--) {
+            let item = notesArr[idx];
+            console.log(projId);
+            if (projId == item["id"]){
+                console.log(idx);
+                let noteId = notesArr[idx]["noteId"];
+                createNoteModule.deleteNote(noteId);
+            };
+        };
+        for(let idx = projArr.length - 1; 0 <= idx; idx--) {
+            let item = projArr[idx];
+            console.log(projArr);
+            if (projId == item["id"]){
+                console.log(idx);
+                let index2 = projArr[idx]["id"];
+                projArr.splice(index2, 1);
+            };
+        };
+        
+    }
+    return {addProj, getProjArr, deleteProj};
 }());
 
 const createNoteModule = (function(){
@@ -80,26 +103,47 @@ const createNoteModule = (function(){
 })();
 const projDOM = (() => {
     const projSidebar = document.querySelector('.projectItems');
+    const selectProj = document.querySelector('.projSelectDrop');
     const renderProj = () => {
         let projArr = createProjModule.getProjArr();
+        selectProj.innerHTML = '';
         projArr.forEach((elem, index) => {
-            const selectProj = document.querySelector('.projSelectDrop');
-            const option = document.createElement('OPTION');
-            option.innerHTML = elem.title;
-            option.value = elem.title;
-            selectProj.appendChild(option);
+            renderOptions(elem, index);
             const count = createNoteModule.getNoteCount(elem);
             const projItem = document.createElement('LI');
             const noteCounter = document.createElement('SPAN');
+            const deleteIcon = document.createElement('I');
+            deleteIcon.setAttribute("data-id", index);
+            deleteIcon.classList.add('material-icons');
+            deleteIcon.innerHTML = 'delete_forever';
+            deleteIcon.addEventListener("click", (e) => {
+                createProjModule.deleteProj(index);
+                clearProj();
+                renderProj();
+                todoDOM.renderNoteHeader();
+                e.stopPropagation();
+            });
             projItem.classList.add('projItem');
             projItem.setAttribute("data-id", index)
             noteCounter.classList.add('noteCount');
             noteCounter.innerHTML = `${count}`
             projItem.innerHTML = elem.title;
             projItem.appendChild(noteCounter);
+            projItem.appendChild(deleteIcon);
             projSidebar.appendChild(projItem);
         });
         
+    };
+    const renderOptions = (elem, index) => {
+        if(elem.title == 'Today' || elem.title == 'Upcoming'){
+            //skip     
+        } else {
+            const option = document.createElement('OPTION');
+            option.innerHTML = elem.title;
+            option.value = index;
+            option.selected = true;
+            selectProj.appendChild(option);
+        };
     };
     const clearProj = () => {
         projSidebar.innerHTML = '';
