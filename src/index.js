@@ -4,51 +4,46 @@ import {createNewProj} from "./createNewProj.js"
 import {format} from 'date-fns'
 
 'use strict';
-// TESTING
-let obj = createNewNote("swe", "project 1 due tmrw", "May 25, 2020", "high", "2", 2);
-let obj2 = createNewNote("design", "project 1 due tmrw", "May 26, 2020", "high", "2", 3);
-let obj3 = createNewNote("hw", "project 1 due tmrw", "May 30, 2020", "high", "2", 4);
-let obj4 = createNewNote("scuba", "project 1 due tmrw", "May 22, 2020", "high", "2", 5);
+// // TESTING
+// let obj = createNewNote("swe", "project 1 due tmrw", "May 25, 2020", "high", "2", 2);
+// let obj2 = createNewNote("design", "project 1 due tmrw", "May 26, 2020", "high", "2", 3);
+// let obj3 = createNewNote("hw", "project 1 due tmrw", "May 30, 2020", "high", "2", 4);
+// let obj4 = createNewNote("scuba", "project 1 due tmrw", "May 22, 2020", "high", "2", 5);
 //BUG fix
 //delete proj bug
 
 const createProjModule = (function(){
-    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }, {title: '1', id: 2 }, {title: '2', id: 3 }, {title: '3', id: 4 }];
-    let projId = 5;
-    
+    let projArr = [{title: 'Today', id: 0 }, {title: 'Upcoming', id: 1 }];
+    let projId = 2;
     const getProjArr = () => {return projArr};
     const addProj = (title) => {
         projArr.push(createNewProj(title, projId++))
         return projArr.slice(-1)[0] 
     };
-    const deleteProj = (projId) => {
+    const indexOfProj = (projId) => {
+        projId = parseInt(projId);
+        return projArr.findIndex(x => x.id === projId);
+    };
+    const deleteProj = (index) => {
+        let projId = projArr[index]["id"];
         let notesArr = createNoteModule.getNotesArr();
-        for(let idx = notesArr.length - 1; 0 <= idx; idx--) {
-            let item = notesArr[idx];
-            console.log(projId);
-            if (projId == item["id"]){
-                console.log(idx);
-                let noteId = notesArr[idx]["noteId"];
-                createNoteModule.deleteNote(noteId);
+        for(let idx = notesArr.length - 1; 0 <= idx; idx--) {        
+            if (projId == notesArr[idx]["id"]){
+                createNoteModule.deleteNote(notesArr[idx]["noteId"]);
             };
         };
-        for(let idx = projArr.length - 1; 0 <= idx; idx--) {
-            let item = projArr[idx];
-            console.log(projArr);
-            if (projId == item["id"]){
-                console.log(idx);
-                let index2 = projArr[idx]["id"];
-                projArr.splice(index2, 1);
+        for(let idx = 0; idx < projArr.length; idx++) {
+            if (projId == projArr[idx]["id"]){
+                projArr.splice(idx, 1);
             };
-        };
-        
-    }
-    return {addProj, getProjArr, deleteProj};
+        };        
+    };
+    return {indexOfProj, addProj, getProjArr, deleteProj};
 }());
 
 const createNoteModule = (function(){
-    let notesArr = [obj, obj2, obj3, obj4];
-    let noteId = 6;
+    let notesArr = [];
+    let noteId = 0;
     const getNotesArr = () => {return notesArr};
     const getUpcomingNotes = () => {
         const distance = 72; //Hours to the past to capture Upcoming
@@ -108,39 +103,47 @@ const projDOM = (() => {
         let projArr = createProjModule.getProjArr();
         selectProj.innerHTML = '';
         projArr.forEach((elem, index) => {
+            let dataId = elem["id"];
             renderOptions(elem, index);
             const count = createNoteModule.getNoteCount(elem);
             const projItem = document.createElement('LI');
             const noteCounter = document.createElement('SPAN');
-            const deleteIcon = document.createElement('I');
-            deleteIcon.setAttribute("data-id", index);
-            deleteIcon.classList.add('material-icons');
-            deleteIcon.innerHTML = 'delete_forever';
-            deleteIcon.addEventListener("click", (e) => {
-                createProjModule.deleteProj(index);
-                clearProj();
-                renderProj();
-                todoDOM.renderNoteHeader();
-                e.stopPropagation();
-            });
-            projItem.classList.add('projItem');
-            projItem.setAttribute("data-id", index)
+            projItem.classList.add('projItem'); 
+            projItem.setAttribute("data-id", elem["id"])
             noteCounter.classList.add('noteCount');
             noteCounter.innerHTML = `${count}`
             projItem.innerHTML = elem.title;
             projItem.appendChild(noteCounter);
-            projItem.appendChild(deleteIcon);
+            addDeleteProjIcon(elem, dataId, index, projItem);
             projSidebar.appendChild(projItem);
         });
-        
+        function addDeleteProjIcon(elem, dataId, index, projItem){
+            if(elem.title == 'Today' || elem.title == 'Upcoming'){
+                //skip     
+            } else {
+                const deleteIcon = document.createElement('I');
+                deleteIcon.setAttribute("data-id", dataId);
+                deleteIcon.classList.add('material-icons');
+                deleteIcon.innerHTML = 'delete_forever';
+                projItem.appendChild(deleteIcon);
+                deleteIcon.addEventListener("click", (e) => {               
+                    createProjModule.deleteProj(index);
+                    clearProj();
+                    renderProj();
+                    todoDOM.renderNoteHeader(0);
+                    todoDOM.addRenderNoteListener();
+                    e.stopPropagation();
+                });
+            };
+        };   
     };
-    const renderOptions = (elem, index) => {
+    const renderOptions = (elem) => {
         if(elem.title == 'Today' || elem.title == 'Upcoming'){
             //skip     
         } else {
             const option = document.createElement('OPTION');
-            option.innerHTML = elem.title;
-            option.value = index;
+            option.innerHTML = elem.title;            
+            option.value = elem.id;
             option.selected = true;
             selectProj.appendChild(option);
         };
@@ -167,6 +170,8 @@ const projDOM = (() => {
             clearProj();
             renderProj();
             todoDOM.renderNoteHeader(lastProj.id);
+            todoDOM.addRenderNoteListener();
+
             addProjPromt.classList.add('hide'); 
             projInput.value = '';
         } else if (alreadyClicked && projInput.value === ''){
@@ -193,10 +198,10 @@ const todoDOM = (() => {
     const editTaskBtn = document.querySelector('.editTaskBtn');
     
     const renderNoteHeader = (projId) =>{
+        let index = createProjModule.indexOfProj(projId);
         let projArr = createProjModule.getProjArr();
-        let projTitle = projArr[projId];
+        let projTitle = projArr[index];
         clearTodo();
-        addRenderNoteListener();
         renderNote(projId);
         noteHeader.innerHTML = `${projTitle.title}`;
     };
@@ -240,7 +245,6 @@ const todoDOM = (() => {
                 const note = createNoteModule.getExactNote(noteId);
                 addNote.editFormUpdate(note);
                 editTaskBtn.setAttribute("note-id", noteId);
-                console.log(note)
                 editTaskBtn.classList.remove('hide');
                 addTaskBtn.classList.add('hide');
                 addNote.noteInputPrompt();
@@ -248,8 +252,6 @@ const todoDOM = (() => {
                 projDOM.updateProjDOM();
             });
         });
-        
-
     };
     const cancelNoteBtn = document.querySelector('.cancelTaskBtn');
     const addNotePrompt = document.querySelector('.addNotePrompt');
@@ -257,8 +259,7 @@ const todoDOM = (() => {
     const addTaskBtn = document.querySelector('.addTaskBtn');
     const addNote = (() => {
         function noteInputPrompt(){
-            addNotePrompt.classList.toggle('hide');
-            
+            addNotePrompt.classList.toggle('hide');     
         };
         let title = document.querySelector('#titleNote');
         let desc = document.querySelector('#descNote');
@@ -278,13 +279,10 @@ const todoDOM = (() => {
             clearNoteInput(title, desc, dueDate, priority, projId);
         });
         addTaskBtn.addEventListener("click", () => {
-            
-            noteInputPrompt();
-            
-            createNoteModule.addNoteToArr(title.value, desc.value, dueDate.value, priority.value, projId.value); 
+            noteInputPrompt();  
+            createNoteModule.addNoteToArr(title.value, desc.value, dueDate.value, priority.value, projId.value);
             renderNoteHeader(projId.value);
             projDOM.updateProjDOM();
-            
         });
         editTaskBtn.addEventListener("click", (e) => {
             addNote.noteInputPrompt();
@@ -310,7 +308,6 @@ const todoDOM = (() => {
         const desc = elem.description;
         const dueDate = elem.dueDate;
         const noteId = elem.noteId;
-     
         return `
             <span class = "completeNote"><i class="material-icons">check_circle</i></span>
             <p class = "noteText">
@@ -320,21 +317,8 @@ const todoDOM = (() => {
                 <i note-id = ${noteId} class="editNote material-icons">edit</i>
                 <i note-id = ${noteId} class="deleteNote material-icons">delete_forever</i>  
             </div>`
-    }
-    
+    };
     renderNoteHeader(0);
+    addRenderNoteListener();
     return {addRenderNoteListener, renderNote, renderNoteHeader};
 })();
-// delProj.setAttribute("data-attr", 0);
-// delProj.addEventListener('click', (e) => {
-//     const projAttr = e.target.getAttribute("data-attr");
-//     deleteProject(projAttr);
-// });
-// function deleteProject(projAttr){
-//     for(let idx = notesArr.length - 1; 0 <= idx; idx--) {
-//         let item = notesArr[idx];
-//         if (projAttr === item["id"]){
-//             notesArr.splice(idx, 1);
-//         };
-//     };
-// };
