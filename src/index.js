@@ -86,6 +86,10 @@ const createNoteModule = (function(){
     const addNoteToArr = (title, desc, dueDate, priority, projId) => {
         notesArr.push(createNewNote(title, desc, dueDate, priority, projId, noteId++));
     };
+    const switchComplete = (noteId) => {
+        const targetObj = getExactNote(noteId);
+        targetObj.complete = !targetObj.complete;
+    };
     const deleteNote = (btnId) => {
         notesArr.forEach((elem) => {
             if (btnId == elem["noteId"]){
@@ -94,7 +98,7 @@ const createNoteModule = (function(){
             };
         });
     };
-    return {updateNote, getExactNote, deleteNote, getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes, addNoteToArr};
+    return {switchComplete, updateNote, getExactNote, deleteNote, getNoteCount, getNotesArr, getTodayNotes, getUpcomingNotes, getProjIdNotes, addNoteToArr};
 })();
 const projDOM = (() => {
     const projSidebar = document.querySelector('.projectItems');
@@ -224,12 +228,33 @@ const todoDOM = (() => {
         else{
             notesArr = createNoteModule.getProjIdNotes(projId)
         };
-        notesArr.forEach((elem) => {
+        
+        notesArr.forEach((elem, index) => {
             const noteItem = document.createElement('DIV');
             noteItem.classList.add('noteItem');
-            noteItem.innerHTML = noteHTML(elem); 
-            noteContent.appendChild(noteItem) 
+            noteItem.innerHTML = noteHTML(elem);
+            
+            console.log(elem); 
+            noteContent.appendChild(noteItem);
         });
+        const noteText = document.querySelectorAll('.noteText');
+        const completeNote = document.querySelectorAll('.completeNote');
+        const completeIcon = document.querySelectorAll('.completeIcon');
+        notesArr.forEach((elem, index) => {
+            if(elem.complete){
+                noteText[index].classList.add('strike');
+                completeIcon[index].classList.remove('hide');
+            };
+        });
+        
+        for (let i = 0; i < completeNote.length; i++){
+            completeNote[i].addEventListener("click", (e) => {
+                completeIcon[i].classList.toggle('hide');
+                noteText[i].classList.toggle('strike');
+                createNoteModule.switchComplete(e.target.getAttribute('note-id'));
+            });
+        }; 
+        
         let deleteNoteBtn = document.querySelectorAll('.deleteNote');
         deleteNoteBtn.forEach((btn) => {
             btn.addEventListener("click", (e) => {
@@ -309,7 +334,7 @@ const todoDOM = (() => {
         const dueDate = elem.dueDate;
         const noteId = elem.noteId;
         return `
-            <span class = "completeNote"><i class="material-icons">check_circle</i></span>
+            <span note-id = ${noteId} class = "completeNote"><i note-id = ${noteId} class="material-icons completeIcon hide">check_circle</i></span>
             <p class = "noteText">
                 ${title}
             </p>
