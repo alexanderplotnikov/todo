@@ -128,7 +128,7 @@ aside{
 ul{
     overflow: scroll;
     scrollbar-width: none;
-    height: 50%;
+    max-height: 30em;
 }
 ul::-webkit-scrollbar{
     display: none;
@@ -232,4 +232,13 @@ ul > li{
 }
 .strike{
     text-decoration: line-through;
+}
+.projItem{
+    display: flex;
+    align-items: center;
+}
+
+.projItem > .material-icons{
+    margin-left: auto;
+    margin-right: 10px;
 }
